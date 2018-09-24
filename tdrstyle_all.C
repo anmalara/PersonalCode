@@ -12,166 +12,13 @@
 #include "TASImage.h"
 #include "TPaveLabel.h"
 #include "TLegendEntry.h"
-
 #include "TFrame.h"
-
-////////////////////////////////////
-// Useful small macros (by Mikko) //
-////////////////////////////////////
-
 #include "TCanvas.h"
 #include "TH1D.h"
 
 #include <iostream>
 #include <algorithm>
 
-const bool kSquare = true;
-const bool kRectangular = false;
-
-using namespace std;
-
-void tdrDraw(TH1* h, string opt, int marker=kFullCircle, int mcolor = kBlack, int lstyle=kSolid, int lcolor=-1, int fstyle=1001, int fcolor=kYellow+1) {
-	h->SetMarkerStyle(marker);
-	h->SetMarkerColor(mcolor);
-	h->SetLineStyle(lstyle);
-	h->SetLineColor(lcolor==-1 ? mcolor : lcolor);
-	h->SetFillStyle(fstyle);
-	h->SetFillColor(fcolor);
-	h->Draw((opt+"SAME").c_str());
-}
-
-void tdrDraw(TGraph* g, string opt, int marker=kFullCircle, int mcolor = kBlack, int lstyle=kSolid, int lcolor=-1, int fstyle=1001, int fcolor=kYellow+1) {
-	g->SetMarkerStyle(marker);
-	g->SetMarkerColor(mcolor);
-	g->SetLineStyle(lstyle);
-	g->SetLineColor(lcolor==-1 ? mcolor : lcolor);
-	g->SetFillStyle(fstyle);
-	g->SetFillColor(fcolor);
-	g->Draw((opt+"SAME").c_str());
-}
-
-TLegend *tdrLeg(double x1, double y1, double x2, double y2) {
-	TLegend *leg = new TLegend(x1, y1, x2, y2, "", "brNDC");
-	leg->SetFillStyle(kNone);
-	leg->SetBorderSize(0);
-	leg->SetTextSize(0.045);
-	leg->SetTextFont(42);
-	leg->Draw();
-	return leg;
-}
-
-void tdrHeader(TLegend* leg, TString legTitle, double textSize = 0.04, int textFont = 42, int textColor = kBlack, int textAlign = 22 ){
-	leg->SetHeader(legTitle,"C");
-	TLegendEntry *header = (TLegendEntry*)leg->GetListOfPrimitives()->First();
-	header->SetTextFont(textFont);
-	header->SetTextSize(textSize);
-	header->SetTextAlign(textAlign);
-	header->SetTextColor(textColor);
-}
-
-TCanvas *c = new TCanvas("c","gerrors",200,10,700,500);
-TH1F *h1 = c->DrawFrame(0.,0.5,5.5,3.5);
-TH1F *h2 = c->DrawFrame(1.,0.2,4.5,2.5);
-TH1F *h3 = c->DrawFrame(9.,1.5,10.5,1.5);
-TH1F *h4 = c->DrawFrame(0.1,13.5,1.5,12.5);
-
-
-void findExtreme(std::vector<TH1*> vec, double *x_min, double *x_max, double *y_min, double *y_max) {
-	std::vector<double> x;
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetXaxis()->GetXmin());}
-	*x_min = *std::min_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetXaxis()->GetXmax());}
-	*x_max = *std::max_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetMinimum());}
-	*y_min = *std::min_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetMaximum());}
-	*y_max = *std::max_element(x.begin(), x.end());
-	x.clear();
-
-	if ((*x_min) == (*x_max)) {
-		*x_min = (*x_min)*0.9;
-		*x_max = (*x_max)*1.2;
-	}
-
-	if ((*y_min) == (*y_max)) {
-		*y_min = *y_min*0.9;
-		*y_max = *y_max*1.2;
-	}
-}
-
-
-
-void findExtreme2(std::vector<TH1*> vec, double *x_min, double *x_max, double *y_min, double *y_max) {
-	std::vector<double> x;
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetXaxis()->GetXmin());}
-	*x_min = *std::min_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetXaxis()->GetXmax());}
-	*x_max = *std::max_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetMinimum());}
-	*y_min = *std::min_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetBinContent(vec.at(i)->GetMaximumBin()));}
-	*y_max = *std::max_element(x.begin(), x.end());
-	x.clear();
-
-	if ((*x_min) == (*x_max)) {
-		*x_min = (*x_min)*0.9;
-		*x_max = (*x_max)*1.2;
-	}
-
-	if ((*y_min) == (*y_max)) {
-		*y_min = *y_min*0.9;
-		*y_max = *y_max*1.2;
-	}
-}
-
-
-void findExtreme_gr(std::vector<TGraphErrors*> vec, double *x_min, double *x_max, double *y_min, double *y_max) {
-	std::vector<double> x;
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(TMath::MinElement(vec.at(i)->GetN(),vec.at(i)->GetX()));}
-	*x_min = *std::min_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(TMath::MaxElement(vec.at(i)->GetN(),vec.at(i)->GetX()));}
-	*x_max = *std::max_element(x.begin(), x.end());
-	x.clear();
-
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetHistogram()->GetMinimum());}
-	*y_min = *std::min_element(x.begin(), x.end());
-	x.clear();
-
-	// for (int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetBinContent(vec.at(i)->GetMaximumBin()));}
-	for (unsigned int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetHistogram()->GetMaximum());}
-	// for (int i = 0; i < vec.size(); i++){x.push_back(vec.at(i)->GetHistogram()->GetBinContent(vec.at(i)->GetHistogram()->GetMaximumBin()));}
-	*y_max = *std::max_element(x.begin(), x.end());
-	x.clear();
-
-	if ((*x_min) == (*x_max)) {
-		*x_min = (*x_min)*0.9;
-		*x_max = (*x_max)*1.2;
-	}
-
-	if ((*y_min) == (*y_max)) {
-		*y_min = *y_min*0.9;
-		*y_max = *y_max*1.2;
-	}
-
-	if (*x_min >= *x_max ||  *y_min >= *y_max)
-	{
-		cout << "Aiuto" << endl;
-	}
-}
 //////////////////////////////////////////
 // New CMS Style from 2014              //
 // https://ghm.web.cern.ch/ghm/plots/   //
@@ -182,17 +29,14 @@ void findExtreme_gr(std::vector<TGraphErrors*> vec, double *x_min, double *x_max
 // tdrstyle.C //
 ////////////////
 
-
 // tdrGrid: Turns the grid lines on (true) or off (false)
-
-// void tdrGrid(bool gridOn) {
-// 	TStyle *tdrStyle = (TStyle*)gROOT->FindObject("tdrStyle"); assert(tdrStyle);
-// 	tdrStyle->SetPadGridX(gridOn);
-// 	tdrStyle->SetPadGridY(gridOn);
-// }
+void tdrGrid(bool gridOn) {
+	TStyle *tdrStyle = (TStyle*)gROOT->FindObject("tdrStyle"); assert(tdrStyle);
+	tdrStyle->SetPadGridX(gridOn);
+	tdrStyle->SetPadGridY(gridOn);
+}
 
 // fixOverlay: Redraws the axis
-
 void fixOverlay() {
 	gPad->RedrawAxis();
 }
@@ -373,7 +217,7 @@ float relExtraDY = 1.2;
 // ratio of "CMS" and extra text size
 float extraOverCmsTextSize  = 0.76;
 
-TString lumi_13TeV = "13.5 fb^{-1}";
+TString lumi_13TeV = "35.9 fb^{-1}";
 TString lumi_8TeV  = "19.7 fb^{-1}";
 TString lumi_7TeV  = "5.1 fb^{-1}";
 TString lumi_sqrtS = "";
@@ -390,12 +234,9 @@ void CMS_lumi( TPad* pad, int iPeriod=4, int iPosX=11 );
 //#include "CMS_lumi.h"
 
 void
-CMS_lumi( TPad* pad, int iPeriod, int iPosX )
-{
+CMS_lumi( TPad* pad, int iPeriod, int iPosX ){
 	bool outOfFrame    = false;
-	if( iPosX/10==0 ){
-		outOfFrame = true;
-	}
+	if( iPosX/10==0 )outOfFrame = true;
 	int alignY_=3;
 	int alignX_=2;
 	if( iPosX/10==0 ) alignX_=1;
@@ -419,31 +260,22 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX )
 	pad->cd();
 
 	TString lumiText;
-	if( iPeriod==1 )
-	{
+	if( iPeriod==1 ){
 		lumiText += lumi_7TeV;
 		lumiText += " (7 TeV)";
-	}
-	else if ( iPeriod==2 )
-	{
+	} else if ( iPeriod==2 ){
 		lumiText += lumi_8TeV;
 		lumiText += " (8 TeV)";
-	}
-	else if( iPeriod==3 )
-	{
+	} else if( iPeriod==3 ){
 		lumiText = lumi_8TeV;
 		lumiText += " (8 TeV)";
 		lumiText += " + ";
 		lumiText += lumi_7TeV;
 		lumiText += " (7 TeV)";
-	}
-	else if ( iPeriod==4 )
-	{
+	} else if ( iPeriod==4 ){
 		lumiText += lumi_13TeV;
 		lumiText += " (13 TeV)";
-	}
-	else if ( iPeriod==7 )
-	{
+	} else if ( iPeriod==7 ){
 		if( outOfFrame ) lumiText += "#scale[0.85]{";
 		lumiText += lumi_13TeV;
 		lumiText += " (13 TeV)";
@@ -454,13 +286,9 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX )
 		lumiText += lumi_7TeV;
 		lumiText += " (7 TeV)";
 		if( outOfFrame) lumiText += "}";
-	}
-	else if ( iPeriod==12 )
-	{
+	} else if ( iPeriod==12 ){
 		lumiText += "8 TeV";
-	}
-	else if ( iPeriod==0 )
-	{
+	} else if ( iPeriod==0 ){
 		lumiText += lumi_sqrtS;
 	}
 
@@ -478,8 +306,7 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX )
 	latex.SetTextSize(lumiTextSize*t);
 	latex.DrawLatex(1-r,1-t+lumiTextOffset*t,lumiText);
 
-	if( outOfFrame )
-	{
+	if( outOfFrame ){
 		latex.SetTextFont(cmsTextFont);
 		latex.SetTextAlign(11);
 		latex.SetTextSize(cmsTextSize*t);
@@ -489,23 +316,16 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX )
 	pad->cd();
 
 	float posX_=0;
-	if( iPosX%10<=1 )
-	{
+	if( iPosX%10<=1 ){
 		posX_ =   l + relPosX*(1-l-r);
-	}
-	else if( iPosX%10==2 )
-	{
+	} else if( iPosX%10==2 ) {
 		posX_ =  l + 0.5*(1-l-r);
-	}
-	else if( iPosX%10==3 )
-	{
+	} else if( iPosX%10==3 ){
 		posX_ =  1-r - relPosX*(1-l-r);
 	}
 	float posY_ = 1-t - relPosY*(1-t-b);
-	if( !outOfFrame )
-	{
-		if( drawLogo )
-		{
+	if( !outOfFrame ){
+		if( drawLogo ){
 			posX_ =   l + 0.045*(1-l-r)*W/H;
 			posY_ = 1-t - 0.045*(1-t-b);
 			float xl_0 = posX_;
@@ -519,234 +339,282 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX )
 			CMS_logo->Draw("X");
 			pad_logo->Modified();
 			pad->cd();
-		}
-		else
-		{
+		} else{
 			latex.SetTextFont(cmsTextFont);
 			latex.SetTextSize(cmsTextSize*t);
 			latex.SetTextAlign(align_);
 			latex.DrawLatex(posX_, posY_, cmsText);
-			if( writeExtraText )
-			{
+			if( writeExtraText ){
 				latex.SetTextFont(extraTextFont);
 				latex.SetTextAlign(align_);
 				latex.SetTextSize(extraTextSize*t);
 				latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText);
 				if (extraText2!="") // For Simulation Preliminary
-				latex.DrawLatex(posX_, posY_-relExtraDY*cmsTextSize*t
-					- relExtraDY*extraTextSize*t, extraText2);
-
-				}
+				latex.DrawLatex(posX_, posY_-relExtraDY*cmsTextSize*t - relExtraDY*extraTextSize*t, extraText2);
 			}
 		}
-		else if( writeExtraText )
-		{
-			if( iPosX==0)
-			{
-				posX_ =   l +  relPosX*(1-l-r);
-				posY_ =   1-t+lumiTextOffset*t;
-			}
-			latex.SetTextFont(extraTextFont);
-			latex.SetTextSize(extraTextSize*t);
-			latex.SetTextAlign(align_);
-			latex.DrawLatex(posX_, posY_, extraText);
+	} else if( writeExtraText ){
+		if( iPosX==0){
+			posX_ =   l +  relPosX*(1-l-r);
+			posY_ =   1-t+lumiTextOffset*t;
 		}
-		return;
+		latex.SetTextFont(extraTextFont);
+		latex.SetTextSize(extraTextSize*t);
+		latex.SetTextAlign(align_);
+		latex.DrawLatex(posX_, posY_, extraText);
 	}
+	return;
+}
 
-	///////////////
-	// myMacro.C //
-	///////////////
+////////////////////
+// General Macro	//
+////////////////////
+const bool kSquare = true;
+const bool kRectangular = false;
+using namespace std;
 
-	// Give the macro an empty histogram for h->Draw("AXIS");
-	// Create h after calling setTDRStyle to get all the settings right
-	TCanvas* tdrCanvas(const char* canvName, double x_min, double x_max, double y_min, double y_max, const char* nameXaxis, const char* nameYaxis, bool square = kRectangular, int iPeriod = 4, int iPos = 11) {
+// Give the macro an empty histogram for h->Draw("AXIS");
+// Create h after calling setTDRStyle to get all the settings right
+TCanvas* tdrCanvas(const char* canvName, double x_min, double x_max, double y_min, double y_max, const char* nameXaxis, const char* nameYaxis, bool square = kRectangular, int iPeriod = 4, int iPos = 11) {
 
-		setTDRStyle();
+	setTDRStyle();
 
-		//writeExtraText = true;       // if extra text
-		//extraText  = "Preliminary";  // default extra text is "Preliminary"
-		//lumi_8TeV  = "19.5 fb^{-1}"; // default is "19.7 fb^{-1}"
-		//lumi_7TeV  = "5.0 fb^{-1}";  // default is "5.1 fb^{-1}"
+	//writeExtraText = true;       // if extra text
+	//extraText  = "Preliminary";  // default extra text is "Preliminary"
+	//lumi_8TeV  = "19.5 fb^{-1}"; // default is "19.7 fb^{-1}"
+	//lumi_7TeV  = "5.0 fb^{-1}";  // default is "5.1 fb^{-1}"
 
-		//int iPeriod = 3;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV
+	//int iPeriod = 3;    // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV
 
-		// second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
-		// iPos=11 : top-left, left-aligned
-		// iPos=33 : top-right, right-aligned
-		// iPos=22 : center, centered
-		// iPos=0  : out of frame (in exceptional cases)
-		// mode generally :
-		//   iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
+	// second parameter in example_plot is iPos, which drives the position of the CMS logo in the plot
+	// iPos=11 : top-left, left-aligned
+	// iPos=33 : top-right, right-aligned
+	// iPos=22 : center, centered
+	// iPos=0  : out of frame (in exceptional cases)
+	// mode generally :
+	//   iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
 
 
-		//  if( iPos==0 ) relPosX = 0.12;
+	//  if( iPos==0 ) relPosX = 0.12;
 
-		int W = (square ? 600 : 800);
-		int H = (square ? 600 : 600);
+	int W = (square ? 600 : 800);
+	int H = (square ? 600 : 600);
 
-		//
-		// Simple example of macro: plot with CMS name and lumi text
-		//  (this script does not pretend to work in all configurations)
-		// iPeriod = 1*(0/1 7 TeV) + 2*(0/1 8 TeV)  + 4*(0/1 13 TeV)
-		// For instance:
-		//               iPeriod = 3 means: 7 TeV + 8 TeV
-		//               iPeriod = 7 means: 7 TeV + 8 TeV + 13 TeV
-		// Initiated by: Gautier Hamel de Monchenault (Saclay)
-		//
-		int W_ref = (square ? 600 : 800);
-		int H_ref = (square ? 600 : 600);
+	//
+	// Simple example of macro: plot with CMS name and lumi text
+	//  (this script does not pretend to work in all configurations)
+	// iPeriod = 1*(0/1 7 TeV) + 2*(0/1 8 TeV)  + 4*(0/1 13 TeV)
+	// For instance:
+	//               iPeriod = 3 means: 7 TeV + 8 TeV
+	//               iPeriod = 7 means: 7 TeV + 8 TeV + 13 TeV
+	// Initiated by: Gautier Hamel de Monchenault (Saclay)
+	//
+	int W_ref = (square ? 600 : 800);
+	int H_ref = (square ? 600 : 600);
 
-		// references for T, B, L, R
-		float T = (square ? 0.07*H_ref : 0.08*H_ref);
-		float B = (square ? 0.13*H_ref : 0.12*H_ref);
-		float L = (square ? 0.15*W_ref : 0.12*W_ref);
-		float R = (square ? 0.05*W_ref : 0.04*W_ref);
+	// references for T, B, L, R
+	float T = (square ? 0.07*H_ref : 0.08*H_ref);
+	float B = (square ? 0.13*H_ref : 0.12*H_ref);
+	float L = (square ? 0.15*W_ref : 0.12*W_ref);
+	float R = (square ? 0.05*W_ref : 0.04*W_ref);
 
-		TCanvas *canv = new TCanvas(canvName,canvName,50,50,W,H);
-		canv->SetFillColor(0);
-		canv->SetBorderMode(0);
-		canv->SetFrameFillStyle(0);
-		canv->SetFrameBorderMode(0);
-		canv->SetLeftMargin( L/W );
-		canv->SetRightMargin( R/W );
-		canv->SetTopMargin( T/H );
-		canv->SetBottomMargin( B/H );
-		// FOR JEC plots, prefer to keep ticks on both sides
-		//canv->SetTickx(0);
-		//canv->SetTicky(0);
+	TCanvas *canv = new TCanvas(canvName,canvName,50,50,W,H);
+	canv->SetFillColor(0);
+	canv->SetBorderMode(0);
+	canv->SetFrameFillStyle(0);
+	canv->SetFrameBorderMode(0);
+	canv->SetLeftMargin( L/W );
+	canv->SetRightMargin( R/W );
+	canv->SetTopMargin( T/H );
+	canv->SetBottomMargin( B/H );
+	// FOR JEC plots, prefer to keep ticks on both sides
+	//canv->SetTickx(0);
+	//canv->SetTicky(0);
 
-		// assert(h);
-		TH1F *h = canv->DrawFrame(x_min,y_min,x_max,y_max);
-		h->GetYaxis()->SetTitleOffset(square ? 1.25 : 1);
-		h->GetXaxis()->SetTitleOffset(square ? 1.0 : 0.9);
-		h->GetXaxis()->SetTitle(nameXaxis);
-		h->GetYaxis()->SetTitle(nameYaxis);
-		h->Draw("AXIS");
+	// assert(h);
+	TH1F *h = canv->DrawFrame(x_min,y_min,x_max,y_max);
+	h->GetYaxis()->SetTitleOffset(square ? 1.25 : 1);
+	h->GetXaxis()->SetTitleOffset(square ? 1.0 : 0.9);
+	h->GetXaxis()->SetTitle(nameXaxis);
+	h->GetYaxis()->SetTitle(nameYaxis);
+	h->Draw("AXIS");
 
-		// writing the lumi information and the CMS "logo"
-		CMS_lumi( canv, iPeriod, iPos );
+	// writing the lumi information and the CMS "logo"
+	CMS_lumi( canv, iPeriod, iPos );
 
-		canv->Update();
-		canv->RedrawAxis();
-		canv->GetFrame()->Draw();
+	canv->Update();
+	canv->RedrawAxis();
+	canv->GetFrame()->Draw();
 
-		return canv;
+	return canv;
+}
+
+
+
+// Give the macro empty histograms for h->Draw("AXIS");
+// Create h after calling setTDRStyle to get all the settings right
+// Created by: Mikko Voutilainen (HIP)
+TCanvas* tdrDiCanvas(const char* canvName, TH1D *hup, TH1D *hdw, int iPeriod = 4, int iPos = 11) {
+
+	setTDRStyle();
+
+	// Reference canvas size
+	// We'll add a subpad that is a fraction (1/3) of the top canvas size,
+	// while keeping margins and text sizes as they were for a single pad
+	int W_ref = 600;
+	int H_ref = 600;
+
+	// Set bottom pad relative height and relative margin
+	float F_ref = 1./3.;
+	float M_ref = 0.03;
+
+	// Set reference margins
+	float T_ref = 0.07;
+	float B_ref = 0.13;
+	float L = 0.15;
+	float R = 0.05;
+
+	// Calculate total canvas size and pad heights
+	int W = W_ref;
+	int H = H_ref * (1 + (1-T_ref-B_ref)*F_ref+M_ref);
+	float Hup = H_ref * (1-B_ref);
+	float Hdw = H - Hup;
+
+	// references for T, B, L, R
+	float Tup = T_ref * H_ref / Hup;
+	float Tdw = M_ref * H_ref / Hdw;
+	float Bup = 0.01;
+	float Bdw = B_ref * H_ref / Hdw;
+
+	TCanvas *canv = new TCanvas(canvName,canvName,50,50,W,H);
+	canv->SetFillColor(0);
+	canv->SetBorderMode(0);
+	canv->SetFrameFillStyle(0);
+	canv->SetFrameBorderMode(0);
+	canv->SetFrameLineColor(0); // fix from Anne-Laure Pequegnot
+	canv->SetFrameLineWidth(0); // fix from Anne-Laure Pequegnot
+	// FOR JEC plots, prefer to keep ticks on both sides
+	//canv->SetTickx(0);
+	//canv->SetTicky(0);
+
+	canv->Divide(1,2);
+
+	canv->cd(1);
+	gPad->SetPad(0, Hdw / H, 1, 1);
+	gPad->SetLeftMargin( L );
+	gPad->SetRightMargin( R );
+	gPad->SetTopMargin( Tup );
+	gPad->SetBottomMargin( Bup );
+
+	assert(hup);
+
+	// Scale text sizes and margins to match normal size
+	hup->GetYaxis()->SetTitleOffset(1.25 * Hup / H_ref);
+	hup->GetXaxis()->SetTitleOffset(1.0);
+	hup->SetTitleSize(hup->GetTitleSize("Y") * H_ref / Hup, "Y");
+	hup->SetLabelSize(hup->GetLabelSize("Y") * H_ref / Hup, "Y");
+
+	// Set tick lengths to match original
+	hup->SetTickLength(hup->GetTickLength("Y") * Hup / H_ref, "Y");
+	hup->SetTickLength(hup->GetTickLength("X") * H_ref / Hup, "X");
+
+	hup->Draw("AXIS");
+
+	// writing the lumi information and the CMS "logo"
+	CMS_lumi( (TCanvas*)gPad, iPeriod, iPos );
+
+	canv->cd(2);
+	gPad->SetPad(0, 0, 1, Hdw / H);
+	gPad->SetLeftMargin( L );
+	gPad->SetRightMargin( R );
+	gPad->SetTopMargin( Tdw );
+	gPad->SetBottomMargin( Bdw );
+
+	assert(hdw);
+	hdw->GetYaxis()->SetTitleOffset(1.25);
+	hdw->GetXaxis()->SetTitleOffset(1.0);
+
+	// Scale text sizes and margins to match normal size
+	hdw->GetYaxis()->SetTitleOffset(1.25 * Hdw / H_ref);
+	hdw->GetXaxis()->SetTitleOffset(1.0);
+	hdw->SetTitleSize(hdw->GetTitleSize("Y") * H_ref / Hdw, "Y");
+	hdw->SetLabelSize(hdw->GetLabelSize("Y") * H_ref / Hdw, "Y");
+	hdw->SetTitleSize(hdw->GetTitleSize("X") * H_ref / Hdw, "X");
+	hdw->SetLabelSize(hdw->GetLabelSize("X") * H_ref / Hdw, "X");
+
+	// Set tick lengths to match original (these are fractions of axis length)
+	hdw->SetTickLength(hdw->GetTickLength("Y") * H_ref / Hup, "Y"); //?? ok if 1/3
+	hdw->SetTickLength(hdw->GetTickLength("X") * H_ref / Hdw, "X");
+
+	// Reduce divisions to match smaller height (default n=510, optim=kTRUE)
+	hdw->GetYaxis()->SetNdivisions(504);
+
+	hdw->Draw("AXIS");
+
+	canv->cd(0);
+
+	canv->Update();
+	canv->RedrawAxis();
+	canv->GetFrame()->Draw();
+
+	return canv;
+}
+
+void setNewTitle(TString name = "new title") {
+	gStyle->SetOptTitle(0);
+	TPaveLabel *title = new TPaveLabel(.11,.95,.35,.99,name,"brNDC");
+	title->Draw();
+}
+
+void tdrDraw(TH1* h, string opt, int marker=kFullCircle, int mcolor = kBlack, int lstyle=kSolid, int lcolor=-1, int fstyle=1001, int fcolor=kYellow+1) {
+	h->SetMarkerStyle(marker);
+	h->SetMarkerColor(mcolor);
+	h->SetLineStyle(lstyle);
+	h->SetLineColor(lcolor==-1 ? mcolor : lcolor);
+	h->SetFillStyle(fstyle);
+	h->SetFillColor(fcolor);
+	h->Draw((opt+"SAME").c_str());
+}
+
+void tdrDraw(TGraph* g, string opt, int marker=kFullCircle, int mcolor = kBlack, int lstyle=kSolid, int lcolor=-1, int fstyle=1001, int fcolor=kYellow+1) {
+	g->SetMarkerStyle(marker);
+	g->SetMarkerColor(mcolor);
+	g->SetLineStyle(lstyle);
+	g->SetLineColor(lcolor==-1 ? mcolor : lcolor);
+	g->SetFillStyle(fstyle);
+	g->SetFillColor(fcolor);
+	g->Draw((opt+"SAME").c_str());
+}
+
+TLegend *tdrLeg(double x1, double y1, double x2, double y2, double textSize=0.045, int textFont=42, int textColor=kBlack){
+	TLegend *leg = new TLegend(x1, y1, x2, y2, "", "brNDC");
+	leg->SetFillStyle(kNone);
+	leg->SetBorderSize(0);
+	leg->SetTextSize(textSize);
+	leg->SetTextFont(textFont);
+	leg->SetTextColor(textColor);
+	leg->Draw();
+	return leg;
+}
+
+void tdrHeader(TLegend* leg, TString legTitle, int textAlign = 12, double textSize = 0.04, int textFont = 42, int textColor = kBlack, bool isToRemove = true){
+	TLegendEntry * header = new TLegendEntry( 0, legTitle, "h" );
+  header->SetTextFont(textFont);
+  header->SetTextSize(textSize);
+  header->SetTextAlign(textAlign);
+  header->SetTextColor(textColor);
+	if (isToRemove) {
+		leg->SetHeader(legTitle,"C");
+    leg->GetListOfPrimitives()->Remove(leg->GetListOfPrimitives()->At(0));
+    leg->GetListOfPrimitives()->AddAt(header,0);
+	} else {
+		leg->GetListOfPrimitives()->AddLast(header);
 	}
+}
 
-
-
-	// Give the macro empty histograms for h->Draw("AXIS");
-	// Create h after calling setTDRStyle to get all the settings right
-	// Created by: Mikko Voutilainen (HIP)
-	TCanvas* tdrDiCanvas(const char* canvName, TH1D *hup, TH1D *hdw, int iPeriod = 4, int iPos = 11) {
-
-		setTDRStyle();
-
-		// Reference canvas size
-		// We'll add a subpad that is a fraction (1/3) of the top canvas size,
-		// while keeping margins and text sizes as they were for a single pad
-		int W_ref = 600;
-		int H_ref = 600;
-
-		// Set bottom pad relative height and relative margin
-		float F_ref = 1./3.;
-		float M_ref = 0.03;
-
-		// Set reference margins
-		float T_ref = 0.07;
-		float B_ref = 0.13;
-		float L = 0.15;
-		float R = 0.05;
-
-		// Calculate total canvas size and pad heights
-		int W = W_ref;
-		int H = H_ref * (1 + (1-T_ref-B_ref)*F_ref+M_ref);
-		float Hup = H_ref * (1-B_ref);
-		float Hdw = H - Hup;
-
-		// references for T, B, L, R
-		float Tup = T_ref * H_ref / Hup;
-		float Tdw = M_ref * H_ref / Hdw;
-		float Bup = 0.01;
-		float Bdw = B_ref * H_ref / Hdw;
-
-		TCanvas *canv = new TCanvas(canvName,canvName,50,50,W,H);
-		canv->SetFillColor(0);
-		canv->SetBorderMode(0);
-		canv->SetFrameFillStyle(0);
-		canv->SetFrameBorderMode(0);
-		canv->SetFrameLineColor(0); // fix from Anne-Laure Pequegnot
-		canv->SetFrameLineWidth(0); // fix from Anne-Laure Pequegnot
-		// FOR JEC plots, prefer to keep ticks on both sides
-		//canv->SetTickx(0);
-		//canv->SetTicky(0);
-
-		canv->Divide(1,2);
-
-		canv->cd(1);
-		gPad->SetPad(0, Hdw / H, 1, 1);
-		gPad->SetLeftMargin( L );
-		gPad->SetRightMargin( R );
-		gPad->SetTopMargin( Tup );
-		gPad->SetBottomMargin( Bup );
-
-		assert(hup);
-
-		// Scale text sizes and margins to match normal size
-		hup->GetYaxis()->SetTitleOffset(1.25 * Hup / H_ref);
-		hup->GetXaxis()->SetTitleOffset(1.0);
-		hup->SetTitleSize(hup->GetTitleSize("Y") * H_ref / Hup, "Y");
-		hup->SetLabelSize(hup->GetLabelSize("Y") * H_ref / Hup, "Y");
-
-		// Set tick lengths to match original
-		hup->SetTickLength(hup->GetTickLength("Y") * Hup / H_ref, "Y");
-		hup->SetTickLength(hup->GetTickLength("X") * H_ref / Hup, "X");
-
-		hup->Draw("AXIS");
-
-		// writing the lumi information and the CMS "logo"
-		CMS_lumi( (TCanvas*)gPad, iPeriod, iPos );
-
-		canv->cd(2);
-		gPad->SetPad(0, 0, 1, Hdw / H);
-		gPad->SetLeftMargin( L );
-		gPad->SetRightMargin( R );
-		gPad->SetTopMargin( Tdw );
-		gPad->SetBottomMargin( Bdw );
-
-		assert(hdw);
-		hdw->GetYaxis()->SetTitleOffset(1.25);
-		hdw->GetXaxis()->SetTitleOffset(1.0);
-
-		// Scale text sizes and margins to match normal size
-		hdw->GetYaxis()->SetTitleOffset(1.25 * Hdw / H_ref);
-		hdw->GetXaxis()->SetTitleOffset(1.0);
-		hdw->SetTitleSize(hdw->GetTitleSize("Y") * H_ref / Hdw, "Y");
-		hdw->SetLabelSize(hdw->GetLabelSize("Y") * H_ref / Hdw, "Y");
-		hdw->SetTitleSize(hdw->GetTitleSize("X") * H_ref / Hdw, "X");
-		hdw->SetLabelSize(hdw->GetLabelSize("X") * H_ref / Hdw, "X");
-
-		// Set tick lengths to match original (these are fractions of axis length)
-		hdw->SetTickLength(hdw->GetTickLength("Y") * H_ref / Hup, "Y"); //?? ok if 1/3
-		hdw->SetTickLength(hdw->GetTickLength("X") * H_ref / Hdw, "X");
-
-		// Reduce divisions to match smaller height (default n=510, optim=kTRUE)
-		hdw->GetYaxis()->SetNdivisions(504);
-
-		hdw->Draw("AXIS");
-
-		canv->cd(0);
-
-		canv->Update();
-		canv->RedrawAxis();
-		canv->GetFrame()->Draw();
-
-		return canv;
-	}
-
-	void setTitle(TString name = "new title") {
-		gStyle->SetOptTitle(0);
-		TPaveLabel *title = new TPaveLabel(.11,.95,.35,.99,name,"brNDC");
-		title->Draw();
-	}
+//
+// TCanvas *c = new TCanvas("c","gerrors",200,10,700,500);
+// TH1F *h1 = c->DrawFrame(0.,0.5,5.5,3.5);
+// TH1F *h2 = c->DrawFrame(1.,0.2,4.5,2.5);
+// TH1F *h3 = c->DrawFrame(9.,1.5,10.5,1.5);
+// TH1F *h4 = c->DrawFrame(0.1,13.5,1.5,12.5);

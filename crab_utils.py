@@ -107,8 +107,8 @@ path ="/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94_Crab/CMSSW_9_4_1/src/UHH2/
 
 
 createLog(path)
-checkStatus(path, output=True)
-# checkStatus(path)
+# checkStatus(path, output=True)
+checkStatus(path)
 # resubmit(path)
 # resubmit(path, isToCheck=True)
 
