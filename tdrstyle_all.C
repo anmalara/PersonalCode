@@ -573,7 +573,7 @@ void tdrDraw(TH1* h, string opt, int marker=kFullCircle, int mcolor = kBlack, in
 	h->SetLineColor(lcolor==-1 ? mcolor : lcolor);
 	h->SetFillStyle(fstyle);
 	h->SetFillColor(fcolor);
-	h->Draw((opt+"SAME").c_str());
+	h->Draw((opt+" SAME").c_str());
 }
 
 void tdrDraw(TGraph* g, string opt, int marker=kFullCircle, int mcolor = kBlack, int lstyle=kSolid, int lcolor=-1, int fstyle=1001, int fcolor=kYellow+1) {
@@ -583,7 +583,7 @@ void tdrDraw(TGraph* g, string opt, int marker=kFullCircle, int mcolor = kBlack,
 	g->SetLineColor(lcolor==-1 ? mcolor : lcolor);
 	g->SetFillStyle(fstyle);
 	g->SetFillColor(fcolor);
-	g->Draw((opt+"SAME").c_str());
+	g->Draw((opt+" SAME").c_str());
 }
 
 TLegend *tdrLeg(double x1, double y1, double x2, double y2, double textSize=0.045, int textFont=42, int textColor=kBlack){

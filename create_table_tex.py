@@ -1,4 +1,4 @@
-from utils import *
+from Utils import *
 
 def reverseList(list_):
   final = []
@@ -81,14 +81,6 @@ def mainprogram(new_table, SM_change, FE_change):
   for i in reversed(range(len(SM_change))):
     change_table(to_change=SM_change[i], new_string=colors[i])
     change_table(to_change=FE_change[i], new_string=colors[i], forwardOnly=True)
-  # change_table(to_change=SM_change[0], new_string=standard_orange)
-  # change_table(to_change=SM_change[1], new_string=standard_red)
-  # change_table(to_change=SM_change[2], new_string=standard_violet)
-  # change_table(to_change=SM_change[3], new_string=standard_blue)
-  # change_table(to_change=FE_change[0], new_string=standard_orange, forwardOnly=True)
-  # change_table(to_change=FE_change[1], new_string=standard_red, forwardOnly=True)
-  # change_table(to_change=FE_change[2], new_string=standard_violet, forwardOnly=True)
-  # change_table(to_change=FE_change[3], new_string=standard_blue, forwardOnly=True)
 
 path = "/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94/CMSSW_9_4_1/src/UHH2/PersonalCode/"
 original_table = "TABLE_FIX_EXTENDED.tex"
@@ -101,6 +93,14 @@ reds = [[7,[10]], [8,[9,10]], [9,[7,8,9,10]], [10,[1,2,3,4,5,6,7,8,9,10]]]
 
 ################################################################################
 ################################################################################
+################################################################################
+
+#############################
+#                           #
+#       MAIN Program        #
+#                           #
+#############################
+
 new_table = "table_standard.tex"
 
 notused_SM        = [[1,[1]], [2,[1]], [3,[1]], [4,[1]], [5,[1]], [6,[1]], [7,[1]], [8,[1]], [9,[1]], [10,[1]], [11, default_pt], [12, default_pt], [13, default_pt]]
@@ -137,9 +137,6 @@ mainprogram(new_table, [notused_SM,checks_SM, reds_SM, stats_SM, shifts_SM, extr
 ################################################################################
 
 
-
-
-
 ################################################################################
 ################################################################################
 new_table = "table_standard_simplified.tex"
@@ -158,6 +155,83 @@ reds_FE           = [[11, default_pt]]
 stats_FE          = [[12,[9,10]], [13,[9,10]]]
 shifts_FE         = [[12,[1,2,3,4,5,6]], [13, [1,2,3,4,5,6,7,8]]]
 extrapolations_FE = [[4,[2]], [9,[2]], [11,[3]]]
+
+notused_SM        = reverseList(notused_SM)
+checks_SM         = reverseList(checks_SM)
+reds_SM           = reverseList(reds_SM)
+stats_SM          = reverseList(stats_SM)
+shifts_SM         = reverseList(shifts_SM)
+extrapolations_SM = reverseList(extrapolations_SM)
+
+notused_FE        = reverseList(notused_FE)
+checks_FE         = reverseList(checks_FE)
+reds_FE           = reverseList(reds_FE)
+stats_FE          = reverseList(stats_FE)
+shifts_FE         = reverseList(shifts_FE)
+extrapolations_FE = reverseList(extrapolations_FE)
+
+mainprogram(new_table, [notused_SM,checks_SM, reds_SM, stats_SM, shifts_SM, extrapolations_SM], [notused_FE, checks_FE, reds_FE, stats_FE, shifts_FE, extrapolations_FE])
+################################################################################
+################################################################################
+
+
+################################################################################
+################################################################################
+new_table = "table_V24.tex"
+
+notused_SM        = [[1,[1]], [2,[1]], [3,[1]], [4,[1]], [5,[1]], [6,[1]], [7,[1]], [8,[1]], [9,[1]], [10,[1]], [11, default_pt], [12, default_pt], [13, default_pt]]
+checks_SM         = []
+reds_SM           = []
+stats_SM          = [[6,[9]], [7,[9]], [8,[9,10]], [9,[7,8,9,10]], [10,[6,7,8,9,10]]]
+shifts_SM         = []
+extrapolations_SM = [[2,[2]], [4,[2]], [5,[3]], [7,[2,5,6]], [8,[2,3]], [9,[2]], [10,[2]] ]
+
+
+notused_FE        = [[1,[1]], [2,[1]], [3,[1]], [4,[1]], [5,[1]], [6,[1]], [7,[1]], [8,[1]], [9,[1]], [10,[1]], [11,[1]], [12,[1]], [13,[1]]]
+checks_FE         = [[12,[8]], [13,[7]]]
+reds_FE           = [[11, default_pt]]
+stats_FE          = [[11,[9,10]], [12,[9,10]], [13,[8,9,10]]]
+shifts_FE         = [[12,[1,2,3,4,5,6,7]], [13, [1,2,3,4,5,6]]]
+extrapolations_FE = [[2,[2]], [4,[2]], [9,[2]], [12,[2,3]] ]
+
+notused_SM        = reverseList(notused_SM)
+checks_SM         = reverseList(checks_SM)
+reds_SM           = reverseList(reds_SM)
+stats_SM          = reverseList(stats_SM)
+shifts_SM         = reverseList(shifts_SM)
+extrapolations_SM = reverseList(extrapolations_SM)
+
+notused_FE        = reverseList(notused_FE)
+checks_FE         = reverseList(checks_FE)
+reds_FE           = reverseList(reds_FE)
+stats_FE          = reverseList(stats_FE)
+shifts_FE         = reverseList(shifts_FE)
+extrapolations_FE = reverseList(extrapolations_FE)
+
+mainprogram(new_table, [notused_SM,checks_SM, reds_SM, stats_SM, shifts_SM, extrapolations_SM], [notused_FE, checks_FE, reds_FE, stats_FE, shifts_FE, extrapolations_FE])
+################################################################################
+################################################################################
+
+
+
+################################################################################
+################################################################################
+new_table = "table_V27.tex"
+
+notused_SM        = [[1,[1]], [2,[1]], [3,[1]], [4,[1]], [5,[1]], [6,[1]], [7,[1]], [8,[1]], [9,[1]], [10,[1]], [11, default_pt], [12, default_pt], [13, default_pt]]
+checks_SM         = []
+reds_SM           = []
+stats_SM          = [[6,[9]], [7,[9]], [8,[9,10]], [9,[7,8,9,10]], [10,[6,7,8,9,10]]]
+shifts_SM         = []
+extrapolations_SM = []
+
+
+notused_FE        = [[1,[1]], [2,[1]], [3,[1]], [4,[1]], [5,[1]], [6,[1]], [7,[1]], [8,[1]], [9,[1]], [10,[1]], [11,[1]], [12,[1]], [13,[1]]]
+checks_FE         = [[12,[8]], [13,[7]]]
+reds_FE           = [[11, default_pt]]
+stats_FE          = [[11,[9,10]], [12,[9,10]], [13,[8,9,10]]]
+shifts_FE         = [[12,[1,2,3,4,5,6,7]], [13, [1,2,3,4,5,6]]]
+extrapolations_FE = []
 
 notused_SM        = reverseList(notused_SM)
 checks_SM         = reverseList(checks_SM)
