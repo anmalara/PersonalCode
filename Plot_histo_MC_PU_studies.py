@@ -8,18 +8,16 @@ from ROOT import *
 
 colors = [kRed, kBlack, kBlue-7, kRed+1, kOrange, kMagenta+1, kAzure+7, kTeal, kSpring-6, kYellow+1, kPink+10, kViolet-3, kAzure+1, kRed+3, kGray, kOrange+1, kGreen+3, kBlack, kBlue-7, kRed+1, kOrange, kMagenta+1, kAzure+7,]
 
+from tdrstyle_all import *
 
 
-
-def delete_workdir(path = "/nfs/dust/cms/user/amalara/sframe_all/MC_PU_studies/",
-                   new_path="/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94/CMSSW_9_4_1/src/UHH2/common/data/",
-                   to_remove="uhh2.AnalysisModuleRunner.MC."):
-    samples = []
+def newName(path = "/nfs/dust/cms/user/amalara/sframe_all/MC_PU_studies/",
+            new_path="/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94/CMSSW_9_4_1/src/UHH2/common/data/",
+            to_remove="uhh2.AnalysisModuleRunner.MC."):
     for sample in sorted(os.listdir(path)):
         if to_remove in sample:
-            samples.append(sample[len(to_remove):len(sample)-5])
             newfilename = "MyMCPileupHistogram_"+ sample[len(to_remove):len(sample)-5]+".root"
-            cmd = "cp %s %s" % (path+sample, path+newfilename)
+            cmd = "mv %s %s" % (path+sample, path+newfilename)
             a = os.system(cmd)
             cmd = "cp %s %s" % (path+newfilename, new_path+newfilename)
             a = os.system(cmd)
@@ -36,23 +34,6 @@ def tdrCanvas(name="c"):
     h_draw.GetYaxis().SetTitle("A.U.")
     h_draw.Draw("AXIS")
     return c
-
-def tdrHeader(leg,legTitle, textSize=0.04, textFont=42, textColor=kBlack, textAlign=22 ):
-	leg.SetHeader(legTitle,"C")
-	header = leg.GetListOfPrimitives().First()
-	header.SetTextFont(textFont)
-	header.SetTextSize(textSize)
-	header.SetTextAlign(textAlign)
-	header.SetTextColor(textColor)
-
-def tdrLeg(x1, y1, x2, y2):
-	leg = TLegend(x1, y1, x2, y2, "", "brNDC")
-	leg.SetFillStyle(kNone)
-	leg.SetBorderSize(0)
-	leg.SetTextSize(0.03)
-	leg.SetTextFont(42)
-	leg.Draw()
-	return leg
 
 def Plot_histo_MC_PU_studies(c_name= "All", samples=["QCD"]):
     files = []
@@ -117,9 +98,10 @@ def Plot_histo_MC_PU_studies(c_name= "All", samples=["QCD"]):
 
 
 path = "/nfs/dust/cms/user/amalara/sframe_all/MC_PU_studies/"
-new_path = "/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94/CMSSW_9_4_1/src/UHH2/common/data/"
+new_path = "/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94X_v2/CMSSW_9_4_1/src/UHH2/common/data/"
 to_remove = "uhh2.AnalysisModuleRunner.MC."
 
+newName(path,new_path,to_remove)
 
 file_gen = TFile.Open(path+"PileupMC_gen.root")
 file_QCD = TFile.Open(path+"QCD.root")
