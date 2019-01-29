@@ -4,7 +4,7 @@ import time
 import subprocess
 
 sys.path.append("/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94/CMSSW_9_4_1/src/UHH2/PersonalCode/")
-from Utils import *
+from fileManipulation import *
 
 @timeit
 def parallelise(list_processes, MaxProcess=10, list_logfiles=[]):
