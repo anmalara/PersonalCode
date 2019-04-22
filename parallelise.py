@@ -2,9 +2,30 @@ import sys
 import os
 import time
 import subprocess
+from glob import glob
+import multiprocessing as mp
 
 sys.path.append("/nfs/dust/cms/user/amalara/WorkingArea/UHH2_94/CMSSW_9_4_1/src/UHH2/PersonalCode/")
 from fileManipulation import *
+
+
+def MultiProcDecorator(f,*args, **kw):
+    def g(*args, **kw):
+        result = f(*args, **kw)
+        return result
+    g.__module__ = "__main__"
+    return g
+
+@timeit
+def MultiProcess(func,start,stop,step,*args):
+    # func = MultiProcDecorator(func)
+    nproc = 20
+    print "Running on ", ((stop/step)-start), "processes in step of ", nproc
+    pool = mp.Pool(processes=nproc)
+    result = [pool.apply_async(func, args=(x*step,(x+1)*step)+args) for x in range(start,stop/step)]
+    result = [p.get() for p in result if p.get() is not None]
+    return result
+
 
 @timeit
 def parallelise(list_processes, MaxProcess=10, list_logfiles=[]):
@@ -38,7 +59,7 @@ def parallelise(list_processes, MaxProcess=10, list_logfiles=[]):
     if condition:
       f = open(list_logfiles[index],'w')
     else:
-      f = open("log.txt",'w')
+      f = open("log_"+str(index)+".txt",'w')
     logfiles.append(f)
     processes.append(subprocess.Popen(process, stdout=f))
 
@@ -47,4 +68,5 @@ def parallelise(list_processes, MaxProcess=10, list_logfiles=[]):
   for file in logfiles:
     file.close()
   if not condition:
-    os.remove("log.txt")
+    # os.remove("log.txt")
+    a = map(os.remove, glob("log_*.txt"))

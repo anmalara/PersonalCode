@@ -292,7 +292,7 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX ){
 		lumiText += lumi_sqrtS;
 	}
 
-	cout << lumiText << endl;
+	// cout << lumiText << endl;
 
 	TLatex latex;
 	latex.SetNDC();
@@ -447,6 +447,12 @@ TCanvas* tdrCanvas(const char* canvName, double x_min, double x_max, double y_mi
 	canv->GetFrame()->Draw();
 
 	return canv;
+}
+
+
+void tdrCanvasSetAxes(TCanvas *canv, double x_min, double x_max, double y_min, double y_max) {
+	((TH1F*)(canv->GetListOfPrimitives()->FindObject("hframe")))->GetXaxis()->SetRangeUser(x_min,x_max);
+	((TH1F*)(canv->GetListOfPrimitives()->FindObject("hframe")))->GetYaxis()->SetRangeUser(y_min,y_max);
 }
 
 

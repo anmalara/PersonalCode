@@ -234,7 +234,7 @@ def CMS_lumi(pad, iPeriod=4, iPosX=11):
     lumiText += "8 TeV"
   elif ( iPeriod==0 ):
     lumiText += lumi_sqrtS
-  print lumiText
+  # print lumiText
   latex = rt.TLatex()
   latex.SetNDC()
   latex.SetTextAngle(0)
