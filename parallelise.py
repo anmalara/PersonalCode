@@ -20,10 +20,12 @@ def MultiProcDecorator(f,*args, **kw):
 def MultiProcess(func,start,stop,step,*args):
     # func = MultiProcDecorator(func)
     nproc = 20
-    print "Running on ", ((stop/step)-start), "processes in step of ", nproc
+    print "Running on ", ((stop-start)/step), "processes in step of ", nproc
     pool = mp.Pool(processes=nproc)
-    result = [pool.apply_async(func, args=(x*step,(x+1)*step)+args) for x in range(start,stop/step)]
+    result = [pool.apply_async(func, args=(x,x+step)+args) for x in range(start,stop,step)]
     result = [p.get() for p in result if p.get() is not None]
+    pool.close()
+    pool.join()
     return result
 
 

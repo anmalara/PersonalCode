@@ -3,8 +3,19 @@ import os
 import subprocess
 import time
 
+def prettydic(d, indent=8):
+    space = max([0]+[len(str(x)) for x in d])+2
+    for key, value in d.items():
+        print(" "*indent + str(key)),
+        if isinstance(value, dict):
+            print ""
+            prettydic(value, len(" "*indent + str(key)+" "*(space+1-len(str(key)))))
+        else:
+            print(" "*(space-len(str(key))) + str(value))
+
 def timeit(method):
     def timed(*args, **kw):
+        print "Start", method.__name__
         ts = time.time()
         result = method(*args, **kw)
         te = time.time()
@@ -148,6 +159,8 @@ def change_lines(path, filename, controls, inputs, outputs):
                 isToChange = True
                 for ElToCheck in control:
                     isToChange = isToChange and ElToCheck in line
+                for index_1, el in enumerate(inputs[index]):
+                    isToChange = isToChange and inputs[index][index_1] in line
                 if isToChange:
                     isToSave = False
                     newLine = line
