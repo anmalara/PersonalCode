@@ -30,7 +30,7 @@ def MultiProcess(func,start,stop,step,*args):
 
 
 @timeit
-def parallelise(list_processes, MaxProcess=10, list_logfiles=[]):
+def parallelise(list_processes, MaxProcess=10, list_logfiles=[], cwd=None):
   ntotal = len(list_processes)
   processes = []
   logfiles = []
@@ -63,7 +63,11 @@ def parallelise(list_processes, MaxProcess=10, list_logfiles=[]):
     else:
       f = open("log_"+str(index)+".txt",'w')
     logfiles.append(f)
-    processes.append(subprocess.Popen(process, stdout=f))
+    if cwd:
+      processes.append(subprocess.Popen(process[1:], stdout=f, cwd=process[0]))
+      time.sleep(1)
+    else:
+      processes.append(subprocess.Popen(process, stdout=f))
 
   for proc in processes:
     proc.wait()
